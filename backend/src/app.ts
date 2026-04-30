@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.use("api", apiRoutes);
+app.use("/api", apiRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
