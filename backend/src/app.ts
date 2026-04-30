@@ -8,8 +8,6 @@ import { apiRoutes } from "./routes/index.js";
 import { notFoundMiddleware } from "./middleware/notFoundMiddleware.js";
 import { errorMiddleware } from "./middleware/errorMiddleware.js";
 
-const clientUrl = process.env.CLIENT_URL ?? "http:localhost:5173";
-
 export const app = express();
 
 app.use(helmet());

@@ -1,13 +1,17 @@
-const requiredEnvVars = ["PORT", "CLIENT_URL", "NODE_ENV"];
+const requiredEnvVars = ["PORT", "CLIENT_URL", "NODE_ENV"] as const;
 
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
+function getRequiredEnvVar(name: (typeof requiredEnvVars)[number]) {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
   }
+
+  return value;
 }
 
 export const env = {
-  port: process.env.PORT,
-  clientUrl: process.env.CLIENT_URL,
-  nodeEnv: process.env.NODE_ENV,
+  port: getRequiredEnvVar("PORT"),
+  clientUrl: getRequiredEnvVar("CLIENT_URL"),
+  nodeEnv: getRequiredEnvVar("NODE_ENV"),
 };
