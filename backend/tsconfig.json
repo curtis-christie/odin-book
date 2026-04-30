@@ -4,7 +4,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
-    "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
@@ -20,12 +19,3 @@
   },
   "include": ["src"]
 }
-
-// esModuleInterop: Helps mend a few of the fences between CommonJS and ES Modules.
-// skipLibCheck: Skips checking the types of .d.ts files. This is important for performance, because otherwise all node_modules will be checked.
-// target: The version of JavaScript you're targeting. I recommend es2022 over esnext for stability.
-// allowJs and resolveJsonModule: Allows you to import .js and .json files. Always useful.
-// moduleDetection: This option forces TypeScript to consider all files as modules. This helps to avoid 'cannot redeclare block-scoped variable' errors.
-// isolatedModules: This option prevents a few TS features which are unsafe when treating modules as isolated files.
-// verbatimModuleSyntax: This option forces you to use import type and export type, leading to more predictable behavior and fewer unnecessary imports.
-//  With module: NodeNext, it also enforces you're using the correct import syntax for ESM or CJS.
