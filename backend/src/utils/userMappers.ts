@@ -1,6 +1,6 @@
-import type { User } from "../generated/prisma/client.js";
+import type { User } from "../../generated/prisma/client.js";
 
-export type safeUser = {
+export type SafeUser = {
   id: string;
   email: string;
   username: string;
@@ -12,7 +12,7 @@ export type safeUser = {
   updatedAt: Date;
 };
 
-export function toSafeUser(user: User): safeUser {
+export function toSafeUser(user: User): SafeUser {
   return {
     id: user.id,
     email: user.email,

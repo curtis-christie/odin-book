@@ -13,7 +13,7 @@
     "noImplicitOverride": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "rootDir": "src",
+    "rootDir": "./",
     "outDir": "dist",
     "lib": ["ES2022"],
     "types": ["node"]
