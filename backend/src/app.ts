@@ -21,7 +21,7 @@ app.use(
 
 app.use(express.json());
 
-if (process.env.NODE_ENV === "development") {
+if (env.nodeEnv === "development") {
   app.use(morgan("dev"));
 }
 
