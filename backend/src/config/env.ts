@@ -1,4 +1,4 @@
-const requiredEnvVars = ["PORT", "CLIENT_URL", "NODE_ENV"] as const;
+const requiredEnvVars = ["PORT", "CLIENT_URL", "NODE_ENV", "DATABASE_URL"] as const;
 
 function getRequiredEnvVar(name: (typeof requiredEnvVars)[number]) {
   const value = process.env[name];
@@ -11,6 +11,7 @@ function getRequiredEnvVar(name: (typeof requiredEnvVars)[number]) {
 }
 
 export const env = {
+  databaseUrl: getRequiredEnvVar("DATABASE_URL"),
   port: getRequiredEnvVar("PORT"),
   clientUrl: getRequiredEnvVar("CLIENT_URL"),
   nodeEnv: getRequiredEnvVar("NODE_ENV"),
