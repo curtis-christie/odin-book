@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   body: z.object({
-    email: z.email({ error: "Email must be valid" }).trim().toLowerCase(),
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .pipe(z.email({ error: "Email must be valid" })),
 
     username: z
       .string()
