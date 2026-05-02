@@ -15,7 +15,8 @@ export const registerSchema = z.object({
       .min(3, { error: "Username must be at least 3 characters" })
       .max(30, { error: "Username must be at most 30 characters" })
       .regex(/^[a-z0-9_]+$/, {
-        error: "Username can only contain lowercase letters, numbers, and underscores",
+        error:
+          "Username can only contain lowercase letters, numbers, and underscores",
       }),
 
     password: z
@@ -39,4 +40,19 @@ export const registerSchema = z.object({
   query: z.object({}).optional(),
 });
 
+export const loginSchema = z.object({
+  body: z.object({
+    identifier: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .min(1, { error: "Email or username is required" }),
+    password: z.string().min(1, { error: "Password is required" }),
+  }),
+
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>["body"];
+export type LoginInput = z.infer<typeof loginSchema>["body"];

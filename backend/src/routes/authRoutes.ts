@@ -1,9 +1,10 @@
 import { Router } from "express";
 
-import { register } from "../controllers/authController.js";
+import { login, register } from "../controllers/authController.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-import { registerSchema } from "../schemas/authSchemas.js";
+import { loginSchema, registerSchema } from "../schemas/authSchemas.js";
 
 export const authRoutes = Router();
 
 authRoutes.post("/register", validateRequest(registerSchema), register);
+authRoutes.post("/login", validateRequest(loginSchema), login);

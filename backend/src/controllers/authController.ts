@@ -4,12 +4,13 @@ import bcrypt from "bcrypt";
 import { prisma } from "../db/prisma.js";
 import { AppError } from "../utils/AppError.js";
 import { toSafeUser } from "../utils/userMappers.js";
-import type { RegisterInput } from "../schemas/authSchemas.js";
+import type { LoginInput, RegisterInput } from "../schemas/authSchemas.js";
 
 const SALT_ROUNDS = 10;
 
 export const register: RequestHandler = async (req, res) => {
-  const { email, username, password, firstName, lastName } = req.body as RegisterInput;
+  const { email, username, password, firstName, lastName } =
+    req.body as RegisterInput;
 
   const existingEmailUser = await prisma.user.findUnique({
     where: { email },
@@ -40,6 +41,33 @@ export const register: RequestHandler = async (req, res) => {
   });
 
   res.status(201).json({
+    user: toSafeUser(user),
+  });
+};
+
+export const login: RequestHandler = async (req, res) => {
+  const { identifier, password } = req.body as LoginInput;
+
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: identifier }, { username: identifier }],
+    },
+  });
+
+  if (!user) {
+    throw new AppError("Invalid credentials", 401);
+  }
+
+  const passwordIsValid = await bcrypt.compare(
+    password,
+    user.passwordHash,
+  );
+
+  if (!passwordIsValid) {
+    throw new AppError("Invalid credentials", 401);
+  }
+
+  res.status(200).json({
     user: toSafeUser(user),
   });
 };
