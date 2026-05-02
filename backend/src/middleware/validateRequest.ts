@@ -4,7 +4,7 @@ import * as z from "zod";
 import { AppError } from "../utils/AppError.js";
 
 function formatIssuePath(path: PropertyKey[]) {
-  return path.join(".");
+  return path.map(String).join(".");
 }
 
 function formatValidationMessage(error: z.ZodError) {
