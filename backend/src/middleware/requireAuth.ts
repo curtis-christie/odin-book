@@ -11,9 +11,9 @@ function getBearerToken(authorizationHeader: string | undefined) {
     return null;
   }
 
-  const [scheme, token] = authorizationHeader.split(" ");
+  const [scheme, token, extra] = authorizationHeader.split(" ");
 
-  if (scheme !== "Bearer" || !token) {
+  if (scheme !== "Bearer" || !token || extra) {
     return null;
   }
 
