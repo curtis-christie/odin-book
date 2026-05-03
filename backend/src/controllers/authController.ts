@@ -5,6 +5,7 @@ import { prisma } from "../db/prisma.js";
 import { AppError } from "../utils/AppError.js";
 import { toSafeUser } from "../utils/userMappers.js";
 import type { LoginInput, RegisterInput } from "../schemas/authSchemas.js";
+import { signAccessToken } from "../utils/tokens.js";
 
 const SALT_ROUNDS = 10;
 
@@ -40,8 +41,13 @@ export const register: RequestHandler = async (req, res) => {
     },
   });
 
+  const accessToken = signAccessToken({
+    userId: user.id,
+  });
+
   res.status(201).json({
     user: toSafeUser(user),
+    accessToken,
   });
 };
 
@@ -67,7 +73,12 @@ export const login: RequestHandler = async (req, res) => {
     throw new AppError("Invalid credentials", 401);
   }
 
+  const accessToken = signAccessToken({
+    userId: user.id,
+  });
+
   res.status(200).json({
     user: toSafeUser(user),
+    accessToken,
   });
 };

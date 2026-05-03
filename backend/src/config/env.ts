@@ -1,4 +1,11 @@
-const requiredEnvVars = ["PORT", "CLIENT_URL", "NODE_ENV", "DATABASE_URL"] as const;
+const requiredEnvVars = [
+  "PORT",
+  "CLIENT_URL",
+  "NODE_ENV",
+  "DATABASE_URL",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+] as const;
 
 function getRequiredEnvVar(name: (typeof requiredEnvVars)[number]) {
   const value = process.env[name];
@@ -11,8 +18,10 @@ function getRequiredEnvVar(name: (typeof requiredEnvVars)[number]) {
 }
 
 export const env = {
-  databaseUrl: getRequiredEnvVar("DATABASE_URL"),
   port: getRequiredEnvVar("PORT"),
   clientUrl: getRequiredEnvVar("CLIENT_URL"),
   nodeEnv: getRequiredEnvVar("NODE_ENV"),
+  databaseUrl: getRequiredEnvVar("DATABASE_URL"),
+  jwtSecret: getRequiredEnvVar("JWT_SECRET"),
+  jwtExpiresIn: getRequiredEnvVar("JWT_EXPIRES_IN"),
 };
