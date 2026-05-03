@@ -11,17 +11,24 @@ function getBearerToken(authorizationHeader: string | undefined) {
     return null;
   }
 
-  const [scheme, token, extra] = authorizationHeader.split(" ");
+  const parts = authorizationHeader.split(" ");
 
-  if (scheme !== "Bearer" || !token || extra) {
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const [scheme, token] = parts;
+
+  if (scheme !== "Bearer" || !token) {
     return null;
   }
 
   return token;
 }
 
+// Protected route
 export const requireAuth: RequestHandler = async (req, _res, next) => {
-  const token = getBearerToken(req.headers.authorization);
+  const token = getBearerToken(req.get("Authorization"));
 
   if (!token) {
     throw new AppError("Authentication required", 401);

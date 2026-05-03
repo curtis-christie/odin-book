@@ -6,6 +6,7 @@ import { AppError } from "../utils/AppError.js";
 import { toSafeUser } from "../utils/userMappers.js";
 import type { LoginInput, RegisterInput } from "../schemas/authSchemas.js";
 import { signAccessToken } from "../utils/tokens.js";
+import { getAuthUser } from "../utils/getAuthUser.js";
 
 const SALT_ROUNDS = 10;
 
@@ -84,11 +85,7 @@ export const login: RequestHandler = async (req, res) => {
 };
 
 export const getMe: RequestHandler = (req, res) => {
-  if (!req.user) {
-    throw new AppError("Authentication required", 401);
-  }
+  const user = getAuthUser(req);
 
-  res.status(200).json({
-    user: req.user,
-  });
+  res.json({ user });
 };
