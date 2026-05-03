@@ -82,3 +82,13 @@ export const login: RequestHandler = async (req, res) => {
     accessToken,
   });
 };
+
+export const getMe: RequestHandler = (req, res) => {
+  if (!req.user) {
+    throw new AppError("Authentication required", 401);
+  }
+
+  res.status(200).json({
+    user: req.user,
+  });
+};

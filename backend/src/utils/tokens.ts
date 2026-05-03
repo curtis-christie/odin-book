@@ -12,3 +12,7 @@ export function signAccessToken(payload: AccessTokenPayload) {
     expiresIn: env.jwtExpiresIn as StringValue,
   });
 }
+
+export function verifyAccessToken(token: string) {
+  return jwt.verify(token, env.jwtSecret) as AccessTokenPayload;
+}
