@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
+import type { ParamsDictionary } from "express-serve-static-core";
 import * as z from "zod";
 
 /* =========================================================
   A. REQUEST SCHEMA TYPE
-   ========================================================= */
+  ========================================================= */
 
 type RequestValidationSchema = z.ZodType<{
   body?: unknown;
@@ -11,9 +12,17 @@ type RequestValidationSchema = z.ZodType<{
   query?: unknown;
 }>;
 
+/* =========================================================
+  B. FORMAT ISSUE PATH
+  ========================================================= */
+
 function formatIssuePath(path: PropertyKey[]) {
   return path.map(String).join(".");
 }
+
+/* =========================================================
+  C. VALIDATE REQUEST
+  ========================================================= */
 
 export function validateRequest(schema: RequestValidationSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -38,7 +47,10 @@ export function validateRequest(schema: RequestValidationSchema) {
     }
 
     req.body = result.data.body ?? req.body;
-    // req.params = result.data.params ?? req.params; params dictionary type error
+
+    if (result.data.params) {
+      req.params = result.data.params as ParamsDictionary;
+    }
 
     next();
   };

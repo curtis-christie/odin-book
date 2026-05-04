@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 
 import { prisma } from "../db/prisma.js";
-import type { CreatePostInput } from "../schemas/postSchemas.js";
+import type {
+  CreatePostInput,
+  UpdatePostInput,
+} from "../schemas/postSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
 import { toPublicPost } from "../utils/postMappers.js";
@@ -87,5 +90,85 @@ export async function getPostById(req: Request, res: Response) {
 
   res.json({
     post: toPublicPost(post),
+  });
+}
+
+/* =========================================================
+  E. GET POST BY ID
+   ========================================================= */
+
+export async function updatePost(req: Request, res: Response) {
+  const authUser = getAuthUser(req);
+  const { postId } = req.params;
+  const { content } = req.body as UpdatePostInput;
+
+  if (typeof postId !== "string") {
+    throw new AppError("Post not found", 404);
+  }
+
+  const existingPost = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!existingPost) {
+    throw new AppError("Post not found", 404);
+  }
+
+  if (existingPost.authorId !== authUser.id) {
+    throw new AppError("You are not allowed to modify this post", 403);
+  }
+
+  const updatedPost = await prisma.post.update({
+    where: {
+      id: postId,
+    },
+    data: {
+      content,
+    },
+    include: postInclude,
+  });
+
+  res.status(200).json({
+    post: toPublicPost(updatedPost),
+  });
+}
+
+/* =========================================================
+  F. DELETE POST BY ID
+   ========================================================= */
+
+export async function deletePost(req: Request, res: Response) {
+  const authUser = getAuthUser(req);
+  const { postId } = req.params;
+
+  if (typeof postId !== "string") {
+    throw new AppError("Post not found", 404);
+  }
+
+  const existingPost = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!existingPost) {
+    throw new AppError("Post not found", 404);
+  }
+
+  if (existingPost.authorId !== authUser.id) {
+    throw new AppError("You are not allowed to modify this post", 403);
+  }
+
+  await prisma.post.delete({
+    where: {
+      id: postId,
+    },
+  });
+
+  res.status(200).json({
+    message: "Post deleted",
+    postId,
   });
 }

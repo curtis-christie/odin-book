@@ -28,5 +28,22 @@ export const postIdParamsSchema = z.object({
     .strict(),
 });
 
+/* =========================================================
+  C. UPDATE POST SCHEMA
+   ========================================================= */
+
+export const updatePostSchema = z.object({
+  body: z
+    .object({
+      content: z
+        .string()
+        .trim()
+        .min(1, "Post content is required")
+        .max(1000, "Post content must be 1000 characters or less"),
+    })
+    .strict(),
+});
+
 export type CreatePostInput = z.infer<typeof createPostSchema>["body"];
 export type PostIdParams = z.infer<typeof postIdParamsSchema>["params"];
+export type UpdatePostInput = z.infer<typeof updatePostSchema>["body"];
