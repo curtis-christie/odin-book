@@ -31,7 +31,7 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
   const token = getBearerToken(req.get("Authorization"));
 
   if (!token) {
-    throw new AppError("Authentication required require", 401);
+    throw new AppError("Authentication required", 401);
   }
 
   try {
