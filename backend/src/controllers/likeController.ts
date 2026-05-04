@@ -4,7 +4,9 @@ import { prisma } from "../db/prisma.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
 
-// Like Post
+/* =========================================================
+  A. LIKE POST
+   ========================================================= */
 export async function likePost(
   req: Request,
   res: Response,
@@ -62,7 +64,9 @@ export async function likePost(
   });
 }
 
-// Unlike Post
+/* =========================================================
+  B. UNLIKE POST
+   ========================================================= */
 export async function unlikePost(
   req: Request,
   res: Response,
@@ -116,7 +120,7 @@ export async function unlikePost(
   });
 
   res.status(200).json({
-    message: "Post un-liked",
+    message: "Post unliked",
     postId,
     likeCount,
   });
