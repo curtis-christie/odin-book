@@ -38,6 +38,7 @@ export function validateRequest(schema: RequestValidationSchema) {
     }
 
     req.body = result.data.body ?? req.body;
+    // req.params = result.data.params ?? req.params; params dictionary type error
 
     next();
   };
