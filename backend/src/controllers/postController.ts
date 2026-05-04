@@ -27,7 +27,10 @@ const postInclude = {
   B. CREATE POST
    ========================================================= */
 
-export async function createPost(req: Request, res: Response) {
+export async function createPost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const input = req.body as CreatePostInput;
 
@@ -48,7 +51,10 @@ export async function createPost(req: Request, res: Response) {
   C. GET FEED POSTS
    ========================================================= */
 
-export async function getFeedPosts(req: Request, res: Response) {
+export async function getFeedPosts(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
 
   const posts = await prisma.post.findMany({
@@ -70,7 +76,10 @@ export async function getFeedPosts(req: Request, res: Response) {
   D. GET POST BY ID
    ========================================================= */
 
-export async function getPostById(req: Request, res: Response) {
+export async function getPostById(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { postId } = req.params;
 
   if (typeof postId !== "string") {
@@ -94,10 +103,13 @@ export async function getPostById(req: Request, res: Response) {
 }
 
 /* =========================================================
-  E. GET POST BY ID
+  E. UPDATE POST
    ========================================================= */
 
-export async function updatePost(req: Request, res: Response) {
+export async function updatePost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
   const { content } = req.body as UpdatePostInput;
@@ -109,6 +121,10 @@ export async function updatePost(req: Request, res: Response) {
   const existingPost = await prisma.post.findUnique({
     where: {
       id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
     },
   });
 
@@ -139,7 +155,10 @@ export async function updatePost(req: Request, res: Response) {
   F. DELETE POST BY ID
    ========================================================= */
 
-export async function deletePost(req: Request, res: Response) {
+export async function deletePost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
 
@@ -150,6 +169,10 @@ export async function deletePost(req: Request, res: Response) {
   const existingPost = await prisma.post.findUnique({
     where: {
       id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
     },
   });
 
