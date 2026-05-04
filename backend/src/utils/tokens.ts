@@ -15,7 +15,7 @@ export function signAccessToken(payload: AccessTokenPayload) {
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {
-  const payload = jwt.verify(token, env.jwtExpiresIn);
+  const payload = jwt.verify(token, env.jwtSecret);
 
   if (
     typeof payload !== "object" ||

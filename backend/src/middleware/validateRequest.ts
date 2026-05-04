@@ -1,8 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import * as z from "zod";
 
-import { AppError } from "../utils/AppError.js";
-
 /* =========================================================
   A. REQUEST SCHEMA TYPE
    ========================================================= */
