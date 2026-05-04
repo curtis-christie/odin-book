@@ -12,6 +12,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum FollowRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
@@ -23,4 +29,87 @@ model User {
   profileImageUrl String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  posts    Post[]
+  comments Comment[]
+  likes    Like[]
+
+  sentFollowRequests     FollowRequest[] @relation("SentFollowRequests")
+  receivedFollowRequests FollowRequest[] @relation("ReceivedFollowRequests")
+
+  following Follow[] @relation("UserFollowing")
+  followers Follow[] @relation("UserFollowers")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  likes    Like[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  postId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model FollowRequest {
+  id         String              @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     FollowRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   User @relation("SentFollowRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedFollowRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId])
+  @@index([senderId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+  @@index([followerId])
 }
