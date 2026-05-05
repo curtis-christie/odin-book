@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { createComment } from "../controllers/commentController.js";
+import {
+  createComment,
+  getCommentsForPost,
+} from "../controllers/commentController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import { createCommentSchema } from "../schemas/commentSchemas.js";
@@ -15,4 +18,10 @@ commentRoutes.post(
   validateRequest(postIdParamsSchema),
   validateRequest(createCommentSchema),
   createComment,
+);
+
+commentRoutes.get(
+  "/:postId/comments",
+  validateRequest(postIdParamsSchema),
+  getCommentsForPost,
 );

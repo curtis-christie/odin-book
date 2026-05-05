@@ -52,3 +52,45 @@ export async function createComment(
     comment: toPublicComment(comment),
   });
 }
+
+/* =========================================================
+  B. GET COMMENTS FOR POST
+   ========================================================= */
+
+export async function getCommentsForPost(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { postId } = req.params;
+
+  if (typeof postId !== "string") {
+    throw new AppError("Post not found", 404);
+  }
+
+  const post = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: {
+      postId,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: commentInclude,
+  });
+
+  res.status(200).json({
+    comments: comments.map(toPublicComment),
+  });
+}
