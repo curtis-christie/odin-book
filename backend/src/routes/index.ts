@@ -7,6 +7,7 @@ import { postRoutes } from "./postRoutes.js";
 import { likeRoutes } from "./likeRoutes.js";
 import { commentRoutes } from "./commentRoutes.js";
 import { postCommentRouter } from "./postCommentRoutes.js";
+import { followRequestRoutes } from "./followRequestRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -17,3 +18,4 @@ apiRoutes.use("/posts", postRoutes);
 apiRoutes.use("/posts", likeRoutes);
 apiRoutes.use("/posts", postCommentRouter);
 apiRoutes.use("/comments", commentRoutes);
+apiRoutes.use("/follow-requests", followRequestRoutes);
