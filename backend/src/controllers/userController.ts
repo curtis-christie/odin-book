@@ -4,28 +4,94 @@ import { prisma } from "../db/prisma.js";
 import type { UpdateCurrentUserInput } from "../schemas/userSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
-import { toPublicUser, toSafeUser } from "../utils/userMappers.js";
+import {
+  toPublicUser,
+  toPublicUserWithRelationship,
+  toSafeUser,
+  type RelationshipStatus,
+} from "../utils/userMappers.js";
+import { FollowRequestStatus } from "../generated/prisma/enums.js";
+
+const publicUserSelect = {
+  id: true,
+  username: true,
+  firstName: true,
+  lastName: true,
+  bio: true,
+  profileImageUrl: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 /* =========================================================
-  A. GET ALL USERS
+  A. GET USERS
    ========================================================= */
 
-export async function getUsers(req: Request, res: Response) {
+export async function getUsers(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
 
   const users = await prisma.user.findMany({
-    where: {
-      id: {
-        not: authUser.id,
-      },
-    },
     orderBy: {
       createdAt: "desc",
     },
+    select: publicUserSelect,
   });
 
-  res.json({
-    users: users.map(toPublicUser),
+  const follows = await prisma.follow.findMany({
+    where: {
+      followerId: authUser.id,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+
+  const pendingRequests = await prisma.followRequest.findMany({
+    where: {
+      senderId: authUser.id,
+      status: FollowRequestStatus.PENDING,
+    },
+    select: {
+      receiverId: true,
+    },
+  });
+
+  const followingIds = new Set(
+    follows.map((follow) => follow.followingId),
+  );
+
+  const pendingReceiverIds = new Set(
+    pendingRequests.map((request) => request.receiverId),
+  );
+
+  function getRelationshipStatus(userId: string): RelationshipStatus {
+    if (userId === authUser.id) {
+      return "SELF";
+    }
+
+    if (followingIds.has(userId)) {
+      return "FOLLOWING";
+    }
+
+    if (pendingReceiverIds.has(userId)) {
+      return "PENDING";
+    }
+
+    return "NONE";
+  }
+
+  res.status(200).json({
+    users: users.map((user) => {
+      const publicUser = toPublicUser(user);
+
+      return toPublicUserWithRelationship(
+        publicUser,
+        getRelationshipStatus(user.id),
+      );
+    }),
   });
 }
 

@@ -23,6 +23,12 @@ export type PublicUser = {
   updatedAt: Date;
 };
 
+export type RelationshipStatus = "SELF" | "FOLLOWING" | "PENDING" | "NONE";
+
+export type PublicUserWithRelationship = PublicUser & {
+  relationshipStatus: RelationshipStatus;
+};
+
 export function toSafeUser(user: User): SafeUser {
   return {
     id: user.id,
@@ -47,5 +53,15 @@ export function toPublicUser(user: User): PublicUser {
     profileImageUrl: user.profileImageUrl,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+  };
+}
+
+export function toPublicUserWithRelationship(
+  user: PublicUser,
+  relationshipStatus: RelationshipStatus,
+): PublicUserWithRelationship {
+  return {
+    ...user,
+    relationshipStatus,
   };
 }
