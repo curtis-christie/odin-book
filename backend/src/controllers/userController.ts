@@ -10,7 +10,7 @@ import {
   toSafeUser,
   type RelationshipStatus,
 } from "../utils/userMappers.js";
-import { FollowRequestStatus } from "../generated/prisma/enums.js";
+import { FollowRequestStatus } from "../generated/prisma/client.js";
 
 const publicUserSelect = {
   id: true,

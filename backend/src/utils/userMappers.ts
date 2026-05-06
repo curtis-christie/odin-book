@@ -1,5 +1,16 @@
 import type { User } from "../generated/prisma/client.js";
 
+type PublicUserInput = {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  bio: string | null;
+  profileImageUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type SafeUser = {
   id: string;
   email: string;
@@ -43,7 +54,7 @@ export function toSafeUser(user: User): SafeUser {
   };
 }
 
-export function toPublicUser(user: User): PublicUser {
+export function toPublicUser(user: PublicUserInput): PublicUser {
   return {
     id: user.id,
     username: user.username,
