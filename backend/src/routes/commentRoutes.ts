@@ -19,19 +19,6 @@ export const commentRoutes = Router();
 
 commentRoutes.use(requireAuth);
 
-commentRoutes.post(
-  "/:postId/comments",
-  validateRequest(postIdParamsSchema),
-  validateRequest(createCommentSchema),
-  createComment,
-);
-
-commentRoutes.get(
-  "/:postId/comments",
-  validateRequest(postIdParamsSchema),
-  getCommentsForPost,
-);
-
 commentRoutes.patch(
   "/:commentId",
   validateRequest(commentIdParamsSchema),

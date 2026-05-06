@@ -1,10 +1,7 @@
 import type { Request, Response } from "express";
 
 import { prisma } from "../db/prisma.js";
-import type {
-  CreatePostInput,
-  UpdatePostInput,
-} from "../schemas/postSchemas.js";
+import type { CreatePostInput, UpdatePostInput } from "../schemas/postSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
 import { toPublicPost } from "../utils/postMappers.js";
@@ -27,10 +24,7 @@ const postInclude = {
   B. CREATE POST
    ========================================================= */
 
-export async function createPost(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function createPost(req: Request, res: Response): Promise<void> {
   const authUser = getAuthUser(req);
   const input = req.body as CreatePostInput;
 
@@ -51,20 +45,33 @@ export async function createPost(
   C. GET FEED POSTS
    ========================================================= */
 
-export async function getFeedPosts(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function getFeedPosts(req: Request, res: Response): Promise<void> {
   const authUser = getAuthUser(req);
+
+  // Two queries to learn data flow
+  const follows = await prisma.follow.findMany({
+    where: {
+      followerId: authUser.id,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+
+  const followedUserIds = follows.map((follow) => follow.followingId);
+
+  const feedAuthorIds = [authUser.id, ...followedUserIds];
 
   const posts = await prisma.post.findMany({
     where: {
-      authorId: authUser.id,
+      authorId: {
+        in: feedAuthorIds,
+      },
     },
-    include: postInclude,
     orderBy: {
       createdAt: "desc",
     },
+    include: postInclude,
   });
 
   res.json({
@@ -76,10 +83,7 @@ export async function getFeedPosts(
   D. GET POST BY ID
    ========================================================= */
 
-export async function getPostById(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function getPostById(req: Request, res: Response): Promise<void> {
   const { postId } = req.params;
 
   if (typeof postId !== "string") {
@@ -106,10 +110,7 @@ export async function getPostById(
   E. UPDATE POST
    ========================================================= */
 
-export async function updatePost(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function updatePost(req: Request, res: Response): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
   const { content } = req.body as UpdatePostInput;
@@ -155,10 +156,7 @@ export async function updatePost(
   F. DELETE POST BY ID
    ========================================================= */
 
-export async function deletePost(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function deletePost(req: Request, res: Response): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
 
