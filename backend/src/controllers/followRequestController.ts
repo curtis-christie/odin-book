@@ -13,7 +13,10 @@ import { getAuthUser } from "../utils/getAuthUser.js";
   A. SEND FOLLOW REQUEST
    ========================================================= */
 
-export async function sendFollowRequest(req: Request, res: Response): Promise<void> {
+export async function sendFollowRequest(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { receiverId } = req.params as ReceiverIdParams;
 
@@ -181,7 +184,10 @@ export async function acceptFollowRequest(
   }
 
   if (followRequest.receiverId !== authUser.id) {
-    throw new AppError("You are not allowed to respond to this follow request", 403);
+    throw new AppError(
+      "You are not allowed to respond to this follow request",
+      403,
+    );
   }
 
   if (followRequest.status !== FollowRequestStatus.PENDING) {
@@ -243,7 +249,10 @@ export async function rejectFollowRequest(
   }
 
   if (followRequest.receiverId !== authUser.id) {
-    throw new AppError("You are not allowed to respond to this follow request", 403);
+    throw new AppError(
+      "You are not allowed to respond to this follow request",
+      403,
+    );
   }
 
   if (followRequest.status !== FollowRequestStatus.PENDING) {
