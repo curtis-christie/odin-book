@@ -15,3 +15,4 @@ apiRoutes.use("/users", userRoutes);
 apiRoutes.use("/posts", postRoutes);
 apiRoutes.use("/posts", likeRoutes);
 apiRoutes.use("/posts", commentRoutes);
+apiRoutes.use("/comments", commentRoutes);
