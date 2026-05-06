@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 
 import { prisma } from "../db/prisma.js";
-import type { UpdateCurrentUserInput } from "../schemas/userSchemas.js";
+import type {
+  UpdateCurrentUserInput,
+  userIdParams,
+} from "../schemas/userSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
 import {
@@ -22,6 +25,50 @@ const publicUserSelect = {
   createdAt: true,
   updatedAt: true,
 } as const;
+
+async function getRelationshipStatus(
+  authUserId: string,
+  targetUserId: string,
+): Promise<RelationshipStatus> {
+  if (targetUserId === authUserId) {
+    return "SELF";
+  }
+
+  const follow = await prisma.follow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: authUserId,
+        followingId: targetUserId,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (follow) {
+    return "FOLLOWING";
+  }
+
+  const pendingRequest = await prisma.followRequest.findUnique({
+    where: {
+      senderId_receiverId: {
+        senderId: authUserId,
+        receiverId: targetUserId,
+      },
+    },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  if (pendingRequest?.status === FollowRequestStatus.PENDING) {
+    return "PENDING";
+  }
+
+  return "NONE";
+}
 
 /* =========================================================
   A. GET USERS
@@ -99,25 +146,37 @@ export async function getUsers(
   B. GET USER BY ID
    ========================================================= */
 
-export async function getUserById(req: Request, res: Response) {
-  const { userId } = req.params;
+/* =========================================================
+  B. GET USER BY ID
+   ========================================================= */
 
-  if (typeof userId !== "string") {
-    throw new AppError("User not found", 404);
-  }
+export async function getUserById(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const authUser = getAuthUser(req);
+  const { userId } = req.params as userIdParams;
 
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
+    select: publicUserSelect,
   });
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
 
-  res.json({
-    user: toPublicUser(user),
+  const relationshipStatus = await getRelationshipStatus(
+    authUser.id,
+    user.id,
+  );
+
+  const publicUser = toPublicUser(user);
+
+  res.status(200).json({
+    user: toPublicUserWithRelationship(publicUser, relationshipStatus),
   });
 }
 

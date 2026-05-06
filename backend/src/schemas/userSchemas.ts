@@ -37,6 +37,16 @@ export const updateCurrentUserSchema = z.object({
     }),
 });
 
+export const userIdParamsSchema = z.object({
+  params: z
+    .object({
+      userId: z.uuid("User ID must be valid"),
+    })
+    .strict(),
+});
+
+export type userIdParams = z.infer<typeof userIdParamsSchema>["params"];
+
 export type UpdateCurrentUserInput = z.infer<
   typeof updateCurrentUserSchema
 >["body"];
