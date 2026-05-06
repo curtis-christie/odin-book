@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/requireAuth.js";
 import {
+  getPostsByUserId,
   getUserById,
   getUsers,
   updateCurrentUser,
@@ -21,6 +22,12 @@ userRoutes.patch(
   updateCurrentUser,
 );
 userRoutes.get("/", getUsers);
+
+userRoutes.get(
+  "/:userId/posts",
+  validateRequest(userIdParamsSchema),
+  getPostsByUserId,
+);
 userRoutes.get(
   "/:userId",
   validateRequest(userIdParamsSchema),

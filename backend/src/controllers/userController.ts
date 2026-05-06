@@ -14,6 +14,7 @@ import {
   type RelationshipStatus,
 } from "../utils/userMappers.js";
 import { FollowRequestStatus } from "../generated/prisma/client.js";
+import { toPublicPost } from "../utils/postMappers.js";
 
 const publicUserSelect = {
   id: true,
@@ -24,6 +25,16 @@ const publicUserSelect = {
   profileImageUrl: true,
   createdAt: true,
   updatedAt: true,
+} as const;
+
+const postInclude = {
+  author: true,
+  _count: {
+    select: {
+      likes: true,
+      comments: true,
+    },
+  },
 } as const;
 
 async function getRelationshipStatus(
@@ -195,5 +206,45 @@ export async function updateCurrentUser(req: Request, res: Response) {
 
   res.json({
     user: toSafeUser(updatedUser),
+  });
+}
+
+/* =========================================================
+  D. GET POSTS BY USER ID
+   ========================================================= */
+
+export async function getPostsByUserId(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  getAuthUser(req);
+
+  const { userId } = req.params as UserIdParams;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  const posts = await prisma.post.findMany({
+    where: {
+      authorId: userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: postInclude,
+  });
+
+  res.status(200).json({
+    posts: posts.map(toPublicPost),
   });
 }
