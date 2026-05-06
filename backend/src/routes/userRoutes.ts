@@ -6,7 +6,10 @@ import {
   updateCurrentUser,
 } from "../controllers/userController.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-import { updateCurrentUserSchema } from "../schemas/userSchemas.js";
+import {
+  updateCurrentUserSchema,
+  userIdParamsSchema,
+} from "../schemas/userSchemas.js";
 
 export const userRoutes = Router();
 
@@ -18,4 +21,8 @@ userRoutes.patch(
   updateCurrentUser,
 );
 userRoutes.get("/", getUsers);
-userRoutes.get("/:userId", getUserById);
+userRoutes.get(
+  "/:userId",
+  validateRequest(userIdParamsSchema),
+  getUserById,
+);

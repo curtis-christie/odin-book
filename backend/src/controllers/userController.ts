@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../db/prisma.js";
 import type {
   UpdateCurrentUserInput,
-  userIdParams,
+  UserIdParams,
 } from "../schemas/userSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
@@ -114,7 +114,9 @@ export async function getUsers(
     pendingRequests.map((request) => request.receiverId),
   );
 
-  function getRelationshipStatus(userId: string): RelationshipStatus {
+  function getRelationshipStatusFromSets(
+    userId: string,
+  ): RelationshipStatus {
     if (userId === authUser.id) {
       return "SELF";
     }
@@ -136,15 +138,11 @@ export async function getUsers(
 
       return toPublicUserWithRelationship(
         publicUser,
-        getRelationshipStatus(user.id),
+        getRelationshipStatusFromSets(user.id),
       );
     }),
   });
 }
-
-/* =========================================================
-  B. GET USER BY ID
-   ========================================================= */
 
 /* =========================================================
   B. GET USER BY ID
@@ -155,7 +153,7 @@ export async function getUserById(
   res: Response,
 ): Promise<void> {
   const authUser = getAuthUser(req);
-  const { userId } = req.params as userIdParams;
+  const { userId } = req.params as UserIdParams;
 
   const user = await prisma.user.findUnique({
     where: {

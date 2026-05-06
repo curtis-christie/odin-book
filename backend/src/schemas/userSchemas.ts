@@ -45,7 +45,7 @@ export const userIdParamsSchema = z.object({
     .strict(),
 });
 
-export type userIdParams = z.infer<typeof userIdParamsSchema>["params"];
+export type UserIdParams = z.infer<typeof userIdParamsSchema>["params"];
 
 export type UpdateCurrentUserInput = z.infer<
   typeof updateCurrentUserSchema
