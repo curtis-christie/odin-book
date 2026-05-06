@@ -190,27 +190,7 @@ export async function getUserById(
 }
 
 /* =========================================================
-  C. UPDATE CURRENT USER
-   ========================================================= */
-
-export async function updateCurrentUser(req: Request, res: Response) {
-  const authUser = getAuthUser(req);
-  const input = req.body as UpdateCurrentUserInput;
-
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: authUser.id,
-    },
-    data: input,
-  });
-
-  res.json({
-    user: toSafeUser(updatedUser),
-  });
-}
-
-/* =========================================================
-  D. GET POSTS BY USER ID
+  C. GET POSTS BY USER ID
    ========================================================= */
 
 export async function getPostsByUserId(
@@ -246,5 +226,25 @@ export async function getPostsByUserId(
 
   res.status(200).json({
     posts: posts.map(toPublicPost),
+  });
+}
+
+/* =========================================================
+  D. UPDATE CURRENT USER
+   ========================================================= */
+
+export async function updateCurrentUser(req: Request, res: Response) {
+  const authUser = getAuthUser(req);
+  const input = req.body as UpdateCurrentUserInput;
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: authUser.id,
+    },
+    data: input,
+  });
+
+  res.json({
+    user: toSafeUser(updatedUser),
   });
 }

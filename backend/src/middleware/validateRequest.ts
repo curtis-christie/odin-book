@@ -52,6 +52,10 @@ export function validateRequest(schema: RequestValidationSchema) {
       req.params = result.data.params as ParamsDictionary;
     }
 
+    if (result.data.query) {
+      req.query = result.data.query as Request["query"];
+    }
+
     next();
   };
 }
