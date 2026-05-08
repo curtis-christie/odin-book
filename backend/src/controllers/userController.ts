@@ -198,10 +198,6 @@ export async function getUserById(
   C. GET POSTS BY USER ID
    ========================================================= */
 
-/* =========================================================
-  D. GET POSTS BY USER ID
-   ========================================================= */
-
 export async function getPostsByUserId(
   req: Request,
   res: Response,
