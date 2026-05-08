@@ -14,13 +14,18 @@ import {
   postIdParamsSchema,
   updatePostSchema,
 } from "../schemas/postSchemas.js";
+import { paginationQuerySchema } from "../schemas/paginationSchemas.js";
 
 export const postRoutes = Router();
 
 postRoutes.use(requireAuth);
 
 postRoutes.post("/", validateRequest(createPostSchema), createPost);
-postRoutes.get("/feed", getFeedPosts);
+postRoutes.get(
+  "/feed",
+  validateRequest(paginationQuerySchema),
+  getFeedPosts,
+);
 
 postRoutes.get(
   "/:postId",

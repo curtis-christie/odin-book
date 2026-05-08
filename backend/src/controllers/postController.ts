@@ -1,10 +1,18 @@
 import type { Request, Response } from "express";
 
 import { prisma } from "../db/prisma.js";
-import type { CreatePostInput, UpdatePostInput } from "../schemas/postSchemas.js";
+import type {
+  CreatePostInput,
+  UpdatePostInput,
+} from "../schemas/postSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
 import { toPublicPost } from "../utils/postMappers.js";
+import type { PaginationQuery } from "../schemas/paginationSchemas.js";
+import {
+  createPaginationMeta,
+  getPaginationOffset,
+} from "../utils/pagination.js";
 
 /* =========================================================
   A. SHARED POST INCLUDE
@@ -24,7 +32,10 @@ const postInclude = {
   B. CREATE POST
    ========================================================= */
 
-export async function createPost(req: Request, res: Response): Promise<void> {
+export async function createPost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const input = req.body as CreatePostInput;
 
@@ -45,10 +56,14 @@ export async function createPost(req: Request, res: Response): Promise<void> {
   C. GET FEED POSTS
    ========================================================= */
 
-export async function getFeedPosts(req: Request, res: Response): Promise<void> {
+export async function getFeedPosts(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
-  // Two queries to learn data flow
   const follows = await prisma.follow.findMany({
     where: {
       followerId: authUser.id,
@@ -59,23 +74,32 @@ export async function getFeedPosts(req: Request, res: Response): Promise<void> {
   });
 
   const followedUserIds = follows.map((follow) => follow.followingId);
-
   const feedAuthorIds = [authUser.id, ...followedUserIds];
 
-  const posts = await prisma.post.findMany({
-    where: {
-      authorId: {
-        in: feedAuthorIds,
-      },
+  const where = {
+    authorId: {
+      in: feedAuthorIds,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: postInclude,
-  });
+  };
 
-  res.json({
+  const [posts, totalCount] = await prisma.$transaction([
+    prisma.post.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: paginationQuery.limit,
+      include: postInclude,
+    }),
+    prisma.post.count({
+      where,
+    }),
+  ]);
+
+  res.status(200).json({
     posts: posts.map(toPublicPost),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
@@ -83,7 +107,10 @@ export async function getFeedPosts(req: Request, res: Response): Promise<void> {
   D. GET POST BY ID
    ========================================================= */
 
-export async function getPostById(req: Request, res: Response): Promise<void> {
+export async function getPostById(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { postId } = req.params;
 
   if (typeof postId !== "string") {
@@ -110,7 +137,10 @@ export async function getPostById(req: Request, res: Response): Promise<void> {
   E. UPDATE POST
    ========================================================= */
 
-export async function updatePost(req: Request, res: Response): Promise<void> {
+export async function updatePost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
   const { content } = req.body as UpdatePostInput;
@@ -156,7 +186,10 @@ export async function updatePost(req: Request, res: Response): Promise<void> {
   F. DELETE POST BY ID
    ========================================================= */
 
-export async function deletePost(req: Request, res: Response): Promise<void> {
+export async function deletePost(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
 
