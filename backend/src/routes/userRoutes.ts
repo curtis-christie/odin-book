@@ -11,6 +11,7 @@ import {
   updateCurrentUserSchema,
   userIdParamsSchema,
 } from "../schemas/userSchemas.js";
+import { paginationQuerySchema } from "../schemas/paginationSchemas.js";
 
 export const userRoutes = Router();
 
@@ -26,6 +27,7 @@ userRoutes.get("/", getUsers);
 userRoutes.get(
   "/:userId/posts",
   validateRequest(userIdParamsSchema),
+  validateRequest(paginationQuerySchema),
   getPostsByUserId,
 );
 userRoutes.get(

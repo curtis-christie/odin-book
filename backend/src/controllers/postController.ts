@@ -1,18 +1,17 @@
 import type { Request, Response } from "express";
-
 import { prisma } from "../db/prisma.js";
+import type { PaginationQuery } from "../schemas/paginationSchemas.js";
 import type {
   CreatePostInput,
   UpdatePostInput,
 } from "../schemas/postSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
-import { toPublicPost } from "../utils/postMappers.js";
-import type { PaginationQuery } from "../schemas/paginationSchemas.js";
 import {
   createPaginationMeta,
   getPaginationOffset,
 } from "../utils/pagination.js";
+import { toPublicPost } from "../utils/postMappers.js";
 
 /* =========================================================
   A. SHARED POST INCLUDE

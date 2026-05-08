@@ -15,6 +15,11 @@ import {
 } from "../utils/userMappers.js";
 import { FollowRequestStatus } from "../generated/prisma/client.js";
 import { toPublicPost } from "../utils/postMappers.js";
+import type { PaginationQuery } from "../schemas/paginationSchemas.js";
+import {
+  createPaginationMeta,
+  getPaginationOffset,
+} from "../utils/pagination.js";
 
 const publicUserSelect = {
   id: true,
@@ -193,6 +198,10 @@ export async function getUserById(
   C. GET POSTS BY USER ID
    ========================================================= */
 
+/* =========================================================
+  D. GET POSTS BY USER ID
+   ========================================================= */
+
 export async function getPostsByUserId(
   req: Request,
   res: Response,
@@ -200,6 +209,8 @@ export async function getPostsByUserId(
   getAuthUser(req);
 
   const { userId } = req.params as UserIdParams;
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({
     where: {
@@ -214,18 +225,28 @@ export async function getPostsByUserId(
     throw new AppError("User not found", 404);
   }
 
-  const posts = await prisma.post.findMany({
-    where: {
-      authorId: userId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: postInclude,
-  });
+  const where = {
+    authorId: userId,
+  };
+
+  const [posts, totalCount] = await prisma.$transaction([
+    prisma.post.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: paginationQuery.limit,
+      include: postInclude,
+    }),
+    prisma.post.count({
+      where,
+    }),
+  ]);
 
   res.status(200).json({
     posts: posts.map(toPublicPost),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
