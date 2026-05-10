@@ -8,12 +8,21 @@ import type {
 import { AppError } from "../utils/AppError.js";
 import { toPublicComment } from "../utils/commentMappers.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
+import {
+  createPaginationMeta,
+  getPaginationOffset,
+} from "../utils/pagination.js";
+import type { PaginationQuery } from "../schemas/paginationSchemas.js";
+import type { PostIdParams } from "../schemas/postSchemas.js";
 
 const commentInclude = {
   author: true,
 } as const;
 
-async function getCommentForModification(commentId: string, authUserId: string) {
+async function getCommentForModification(
+  commentId: string,
+  authUserId: string,
+) {
   const comment = await prisma.comment.findUnique({
     where: {
       id: commentId,
@@ -39,7 +48,10 @@ async function getCommentForModification(commentId: string, authUserId: string) 
   A. CREATE COMMENT
    ========================================================= */
 
-export async function createComment(req: Request, res: Response): Promise<void> {
+export async function createComment(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { postId } = req.params;
   const { content } = req.body as CreateCommentInput;
@@ -83,11 +95,11 @@ export async function getCommentsForPost(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const { postId } = req.params;
+  getAuthUser(req);
 
-  if (typeof postId !== "string") {
-    throw new AppError("Post not found", 404);
-  }
+  const { postId } = req.params as PostIdParams;
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
   const post = await prisma.post.findUnique({
     where: {
@@ -102,18 +114,28 @@ export async function getCommentsForPost(
     throw new AppError("Post not found", 404);
   }
 
-  const comments = await prisma.comment.findMany({
-    where: {
-      postId,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-    include: commentInclude,
-  });
+  const where = {
+    postId,
+  };
+
+  const [comments, totalCount] = await prisma.$transaction([
+    prisma.comment.findMany({
+      where,
+      orderBy: {
+        createdAt: "asc",
+      },
+      skip,
+      take: paginationQuery.limit,
+      include: commentInclude,
+    }),
+    prisma.comment.count({
+      where,
+    }),
+  ]);
 
   res.status(200).json({
     comments: comments.map(toPublicComment),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
@@ -121,7 +143,10 @@ export async function getCommentsForPost(
   C. UPDATE COMMENT
    ========================================================= */
 
-export async function updateComment(req: Request, res: Response): Promise<void> {
+export async function updateComment(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { commentId } = req.params;
   const { content } = req.body as UpdateCommentInput;
@@ -151,7 +176,10 @@ export async function updateComment(req: Request, res: Response): Promise<void> 
   D. DELETE COMMENT
    ========================================================= */
 
-export async function deleteComment(req: Request, res: Response): Promise<void> {
+export async function deleteComment(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { commentId } = req.params;
 

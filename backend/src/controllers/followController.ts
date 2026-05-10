@@ -4,6 +4,11 @@ import { prisma } from "../db/prisma.js";
 import type { FollowUserIdParams } from "../schemas/followSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
+import {
+  createPaginationMeta,
+  getPaginationOffset,
+} from "../utils/pagination.js";
+import type { PaginationQuery } from "../schemas/paginationSchemas.js";
 
 const publicUserSelect = {
   id: true,
@@ -20,8 +25,13 @@ const publicUserSelect = {
   A. GET FOLLOWERS
    ========================================================= */
 
-export async function getFollowers(req: Request, res: Response): Promise<void> {
+export async function getFollowers(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { userId } = req.params as FollowUserIdParams;
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({
     where: {
@@ -36,22 +46,32 @@ export async function getFollowers(req: Request, res: Response): Promise<void> {
     throw new AppError("User not found", 404);
   }
 
-  const followers = await prisma.follow.findMany({
-    where: {
-      followingId: userId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      follower: {
-        select: publicUserSelect,
+  const where = {
+    followingId: userId,
+  };
+
+  const [followers, totalCount] = await prisma.$transaction([
+    prisma.follow.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
       },
-    },
-  });
+      skip,
+      take: paginationQuery.limit,
+      include: {
+        follower: {
+          select: publicUserSelect,
+        },
+      },
+    }),
+    prisma.follow.count({
+      where,
+    }),
+  ]);
 
   res.status(200).json({
     followers: followers.map((follow) => follow.follower),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
@@ -59,8 +79,13 @@ export async function getFollowers(req: Request, res: Response): Promise<void> {
   B. GET FOLLOWING
    ========================================================= */
 
-export async function getFollowing(req: Request, res: Response): Promise<void> {
+export async function getFollowing(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { userId } = req.params as FollowUserIdParams;
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({
     where: {
@@ -75,22 +100,32 @@ export async function getFollowing(req: Request, res: Response): Promise<void> {
     throw new AppError("User not found", 404);
   }
 
-  const following = await prisma.follow.findMany({
-    where: {
-      followerId: userId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      following: {
-        select: publicUserSelect,
+  const where = {
+    followerId: userId,
+  };
+
+  const [following, totalCount] = await prisma.$transaction([
+    prisma.follow.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
       },
-    },
-  });
+      skip,
+      take: paginationQuery.limit,
+      include: {
+        following: {
+          select: publicUserSelect,
+        },
+      },
+    }),
+    prisma.follow.count({
+      where,
+    }),
+  ]);
 
   res.status(200).json({
     following: following.map((follow) => follow.following),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
@@ -98,7 +133,10 @@ export async function getFollowing(req: Request, res: Response): Promise<void> {
   C. UNFOLLOW USER
    ========================================================= */
 
-export async function unfollowUser(req: Request, res: Response): Promise<void> {
+export async function unfollowUser(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const { userId } = req.params as FollowUserIdParams;
 
