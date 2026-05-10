@@ -1,3 +1,18 @@
+/* =========================================================
+  SEED DATA OVERVIEW
+
+  Creates test users for manual backend testing:
+
+  A. Alice follows Ben
+  B. Alice has a pending follow request to Cara
+  C. Dylan sent a rejected follow request to Alice
+  D. Each user has sample posts
+  E. Posts have sample comments and likes
+
+  Shared test password:
+  password123
+   ========================================================= */
+
 import "dotenv/config";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";

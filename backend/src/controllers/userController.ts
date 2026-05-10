@@ -249,7 +249,10 @@ export async function getPostsByUserId(
   D. UPDATE CURRENT USER
    ========================================================= */
 
-export async function updateCurrentUser(req: Request, res: Response) {
+export async function updateCurrentUser(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authUser = getAuthUser(req);
   const input = req.body as UpdateCurrentUserInput;
 
