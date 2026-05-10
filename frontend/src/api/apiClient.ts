@@ -44,11 +44,16 @@ export async function apiFetch<TResponse>(
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body !== undefined
+        ? { "Content-Type": "application/json" }
+        : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body:
+      options.body !== undefined
+        ? JSON.stringify(options.body)
+        : undefined,
   });
 
   const responseBody = await parseResponseBody(response);
@@ -67,7 +72,11 @@ async function parseResponseBody(response: Response): Promise<unknown> {
     return null;
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
 }
 
 function createApiError(
