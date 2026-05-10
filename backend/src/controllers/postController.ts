@@ -12,13 +12,16 @@ import {
   getPaginationOffset,
 } from "../utils/pagination.js";
 import { toPublicPost } from "../utils/postMappers.js";
+import { publicUserSelect } from "../utils/userSelects.js";
 
 /* =========================================================
   A. SHARED POST INCLUDE
    ========================================================= */
 
 const postInclude = {
-  author: true,
+  author: {
+    select: publicUserSelect,
+  },
   _count: {
     select: {
       likes: true,

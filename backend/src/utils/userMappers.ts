@@ -11,20 +11,11 @@ type PublicUserInput = {
   updatedAt: Date;
 };
 
+export type PublicUser = PublicUserInput;
+
 export type SafeUser = {
   id: string;
   email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  bio: string | null;
-  profileImageUrl: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type PublicUser = {
-  id: string;
   username: string;
   firstName: string;
   lastName: string;

@@ -1,9 +1,9 @@
-import type { Comment, User } from "../generated/prisma/client.js";
+import type { Comment } from "../generated/prisma/client.js";
 
 import { toPublicUser, type PublicUser } from "./userMappers.js";
 
 type CommentWithAuthor = Comment & {
-  author: User;
+  author: PublicUser;
 };
 
 export type PublicComment = {

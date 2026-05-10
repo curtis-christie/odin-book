@@ -20,20 +20,12 @@ import {
   createPaginationMeta,
   getPaginationOffset,
 } from "../utils/pagination.js";
-
-const publicUserSelect = {
-  id: true,
-  username: true,
-  firstName: true,
-  lastName: true,
-  bio: true,
-  profileImageUrl: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
+import { publicUserSelect } from "../utils/userSelects.js";
 
 const postInclude = {
-  author: true,
+  author: {
+    select: publicUserSelect,
+  },
   _count: {
     select: {
       likes: true,

@@ -9,17 +9,7 @@ import {
   getPaginationOffset,
 } from "../utils/pagination.js";
 import type { PaginationQuery } from "../schemas/paginationSchemas.js";
-
-const publicUserSelect = {
-  id: true,
-  username: true,
-  firstName: true,
-  lastName: true,
-  bio: true,
-  profileImageUrl: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
+import { publicUserSelect } from "../utils/userSelects.js";
 
 /* =========================================================
   A. GET FOLLOWERS

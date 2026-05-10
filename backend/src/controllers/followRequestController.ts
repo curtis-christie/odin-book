@@ -8,6 +8,7 @@ import type {
 } from "../schemas/followRequestSchemas.js";
 import { AppError } from "../utils/AppError.js";
 import { getAuthUser } from "../utils/getAuthUser.js";
+import { publicUserSelect } from "../utils/userSelects.js";
 
 /* =========================================================
   A. SEND FOLLOW REQUEST
@@ -21,7 +22,10 @@ export async function sendFollowRequest(
   const { receiverId } = req.params as ReceiverIdParams;
 
   if (receiverId === authUser.id) {
-    throw new AppError("You cannot send a follow request to yourself", 400);
+    throw new AppError(
+      "You cannot send a follow request to yourself",
+      400,
+    );
   }
 
   const receiver = await prisma.user.findUnique({
@@ -94,17 +98,6 @@ export async function sendFollowRequest(
 /* =========================================================
   B. GET INCOMING FOLLOW REQUESTS
    ========================================================= */
-
-const publicUserSelect = {
-  id: true,
-  username: true,
-  firstName: true,
-  lastName: true,
-  bio: true,
-  profileImageUrl: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
 
 export async function getIncomingFollowRequests(
   req: Request,

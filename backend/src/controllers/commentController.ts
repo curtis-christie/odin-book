@@ -14,9 +14,12 @@ import {
 } from "../utils/pagination.js";
 import type { PaginationQuery } from "../schemas/paginationSchemas.js";
 import type { PostIdParams } from "../schemas/postSchemas.js";
+import { publicUserSelect } from "../utils/userSelects.js";
 
 const commentInclude = {
-  author: true,
+  author: {
+    select: publicUserSelect,
+  },
 } as const;
 
 async function getCommentForModification(

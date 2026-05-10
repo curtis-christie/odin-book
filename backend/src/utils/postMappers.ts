@@ -1,4 +1,4 @@
-import type { Post, User } from "../generated/prisma/client.js";
+import type { Post } from "../generated/prisma/client.js";
 
 import { toPublicUser, type PublicUser } from "./userMappers.js";
 
@@ -7,7 +7,7 @@ import { toPublicUser, type PublicUser } from "./userMappers.js";
    ========================================================= */
 
 type PostWithAuthorAndCounts = Post & {
-  author: User;
+  author: PublicUser;
   _count: {
     likes: number;
     comments: number;
