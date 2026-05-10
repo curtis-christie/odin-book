@@ -20,7 +20,7 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "./authApi";
-import { AuthContext } from "./authContext.ts";
+import { AuthContext } from "./authContext";
 
 type AuthProviderProps = {
   children: ReactNode;
