@@ -1,3 +1,4 @@
+import "dotenv/config";
 const requiredEnvVars = [
   "PORT",
   "CLIENT_URL",
