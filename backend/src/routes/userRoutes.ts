@@ -22,7 +22,7 @@ userRoutes.patch(
   validateRequest(updateCurrentUserSchema),
   updateCurrentUser,
 );
-userRoutes.get("/", getUsers);
+userRoutes.get("/", validateRequest(paginationQuerySchema), getUsers);
 
 userRoutes.get(
   "/:userId/posts",

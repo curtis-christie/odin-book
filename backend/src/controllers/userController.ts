@@ -95,32 +95,38 @@ export async function getUsers(
   res: Response,
 ): Promise<void> {
   const authUser = getAuthUser(req);
+  const paginationQuery = req.query as unknown as PaginationQuery;
+  const skip = getPaginationOffset(paginationQuery);
 
-  const users = await prisma.user.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: publicUserSelect,
-  });
-
-  const follows = await prisma.follow.findMany({
-    where: {
-      followerId: authUser.id,
-    },
-    select: {
-      followingId: true,
-    },
-  });
-
-  const pendingRequests = await prisma.followRequest.findMany({
-    where: {
-      senderId: authUser.id,
-      status: FollowRequestStatus.PENDING,
-    },
-    select: {
-      receiverId: true,
-    },
-  });
+  const [users, totalCount, follows, pendingRequests] =
+    await prisma.$transaction([
+      prisma.user.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: paginationQuery.limit,
+        select: publicUserSelect,
+      }),
+      prisma.user.count(),
+      prisma.follow.findMany({
+        where: {
+          followerId: authUser.id,
+        },
+        select: {
+          followingId: true,
+        },
+      }),
+      prisma.followRequest.findMany({
+        where: {
+          senderId: authUser.id,
+          status: FollowRequestStatus.PENDING,
+        },
+        select: {
+          receiverId: true,
+        },
+      }),
+    ]);
 
   const followingIds = new Set(
     follows.map((follow) => follow.followingId),
@@ -157,6 +163,7 @@ export async function getUsers(
         getRelationshipStatusFromSets(user.id),
       );
     }),
+    pagination: createPaginationMeta(paginationQuery, totalCount),
   });
 }
 
