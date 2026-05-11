@@ -4,12 +4,18 @@ import "dotenv/config";
 import { defineConfig } from "prisma/config";
 import { env } from "./src/config/env.ts";
 
+const databaseUrl = env.databaseUrl;
+
+if (!databaseUrl) {
+  throw new Error("Missing required environment variable: DATABASE_URL");
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: env.databaseUrl,
+    url: databaseUrl,
   },
 });
