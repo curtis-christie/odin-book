@@ -101,7 +101,7 @@ export async function getCommentsForPost(
   getAuthUser(req);
 
   const { postId } = req.params as PostIdParams;
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals.validatedQuery as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const post = await prisma.post.findUnique({

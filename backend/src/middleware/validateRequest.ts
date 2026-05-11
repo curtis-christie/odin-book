@@ -16,7 +16,7 @@ type RequestValidationSchema = z.ZodType<{
   B. FORMAT ISSUE PATH
   ========================================================= */
 
-function formatIssuePath(path: PropertyKey[]) {
+function formatIssuePath(path: PropertyKey[]): string {
   return path.map(String).join(".");
 }
 
@@ -46,14 +46,16 @@ export function validateRequest(schema: RequestValidationSchema) {
       return;
     }
 
-    req.body = result.data.body ?? req.body;
+    if (result.data.body !== undefined) {
+      req.body = result.data.body;
+    }
 
-    if (result.data.params) {
+    if (result.data.params !== undefined) {
       req.params = result.data.params as ParamsDictionary;
     }
 
-    if (result.data.query) {
-      req.query = result.data.query as Request["query"];
+    if (result.data.query !== undefined) {
+      res.locals.validatedQuery = result.data.query;
     }
 
     next();

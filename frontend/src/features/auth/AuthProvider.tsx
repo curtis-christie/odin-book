@@ -108,18 +108,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         setAccessToken(token);
         setUser(response.user);
-      } catch (error) {
+      } catch {
         if (!isActive) {
           return;
         }
 
-        const apiError = error as ApiError;
-
-        if (apiError.status === 401) {
-          removeStoredAuthToken();
-          setAccessToken(null);
-          setUser(null);
-        }
+        removeStoredAuthToken();
+        setAccessToken(null);
+        setUser(null);
       } finally {
         if (isActive) {
           setIsLoading(false);

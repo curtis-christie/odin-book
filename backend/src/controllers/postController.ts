@@ -63,7 +63,7 @@ export async function getFeedPosts(
   res: Response,
 ): Promise<void> {
   const authUser = getAuthUser(req);
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals.validatedQuery as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const follows = await prisma.follow.findMany({

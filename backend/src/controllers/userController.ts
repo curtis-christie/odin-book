@@ -87,7 +87,7 @@ export async function getUsers(
   res: Response,
 ): Promise<void> {
   const authUser = getAuthUser(req);
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals.validatedQuery as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const [users, totalCount, follows, pendingRequests] =
@@ -204,7 +204,8 @@ export async function getPostsByUserId(
   getAuthUser(req);
 
   const { userId } = req.params as UserIdParams;
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals
+    .validateQuery as unknown as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({

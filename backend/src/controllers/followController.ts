@@ -20,7 +20,7 @@ export async function getFollowers(
   res: Response,
 ): Promise<void> {
   const { userId } = req.params as FollowUserIdParams;
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals.validatedQuery as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({
@@ -74,7 +74,7 @@ export async function getFollowing(
   res: Response,
 ): Promise<void> {
   const { userId } = req.params as FollowUserIdParams;
-  const paginationQuery = req.query as unknown as PaginationQuery;
+  const paginationQuery = res.locals.validatedQuery as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({
