@@ -12,9 +12,7 @@ import {
   getUserPostsRequestSchema,
   getUsersRequestSchema,
   updateCurrentUserSchema,
-  userIdParamsSchema,
 } from "../schemas/userSchemas.js";
-import { paginationQuerySchema } from "../schemas/paginationSchemas.js";
 
 export const userRoutes = Router();
 

@@ -205,7 +205,7 @@ export async function getPostsByUserId(
 
   const { userId } = req.params as UserIdParams;
   const paginationQuery = res.locals
-    .validateQuery as unknown as PaginationQuery;
+    .validatedQuery as unknown as PaginationQuery;
   const skip = getPaginationOffset(paginationQuery);
 
   const user = await prisma.user.findUnique({

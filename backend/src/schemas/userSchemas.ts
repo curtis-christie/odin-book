@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paginationQuerySchema } from "./paginationSchemas.js";
+import { paginationQueryParamsSchema } from "./paginationSchemas.js";
 
 export const updateCurrentUserSchema = z.object({
   body: z
@@ -48,11 +48,11 @@ export const getUserByIdRequestSchema = z.object({
 
 export const getUserPostsRequestSchema = z.object({
   params: userIdParamsSchema,
-  query: paginationQuerySchema,
+  query: paginationQueryParamsSchema,
 });
 
 export const getUsersRequestSchema = z.object({
-  query: paginationQuerySchema,
+  query: paginationQueryParamsSchema,
 });
 
 export type UserIdParams = z.infer<typeof userIdParamsSchema>;
