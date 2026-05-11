@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paginationQuerySchema } from "./paginationSchemas.js";
 
 export const updateCurrentUserSchema = z.object({
   body: z
@@ -38,14 +39,23 @@ export const updateCurrentUserSchema = z.object({
 });
 
 export const userIdParamsSchema = z.object({
-  params: z
-    .object({
-      userId: z.uuid("User ID must be valid"),
-    })
-    .strict(),
+  userId: z.uuid(),
 });
 
-export type UserIdParams = z.infer<typeof userIdParamsSchema>["params"];
+export const getUserByIdRequestSchema = z.object({
+  params: userIdParamsSchema,
+});
+
+export const getUserPostsRequestSchema = z.object({
+  params: userIdParamsSchema,
+  query: paginationQuerySchema,
+});
+
+export const getUsersRequestSchema = z.object({
+  query: paginationQuerySchema,
+});
+
+export type UserIdParams = z.infer<typeof userIdParamsSchema>;
 
 export type UpdateCurrentUserInput = z.infer<
   typeof updateCurrentUserSchema

@@ -8,6 +8,9 @@ import {
 } from "../controllers/userController.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import {
+  getUserByIdRequestSchema,
+  getUserPostsRequestSchema,
+  getUsersRequestSchema,
   updateCurrentUserSchema,
   userIdParamsSchema,
 } from "../schemas/userSchemas.js";
@@ -22,16 +25,15 @@ userRoutes.patch(
   validateRequest(updateCurrentUserSchema),
   updateCurrentUser,
 );
-userRoutes.get("/", validateRequest(paginationQuerySchema), getUsers);
+userRoutes.get("/", validateRequest(getUsersRequestSchema), getUsers);
 
 userRoutes.get(
   "/:userId/posts",
-  validateRequest(userIdParamsSchema),
-  validateRequest(paginationQuerySchema),
+  validateRequest(getUserPostsRequestSchema),
   getPostsByUserId,
 );
 userRoutes.get(
   "/:userId",
-  validateRequest(userIdParamsSchema),
+  validateRequest(getUserByIdRequestSchema),
   getUserById,
 );
